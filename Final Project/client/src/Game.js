@@ -100,10 +100,16 @@ function Game({level, score, setScore, endGame, paused}){
         const diffColor = {...baseColor};
         let remainingDifference = colorDifference;
 
+        const direction = {
+            r: Math.random() < 0.5 ? -1 : 1,
+            g: Math.random() < 0.5 ? -1 : 1,
+            b: Math.random() < 0.5 ? -1 : 1
+        };
+
         while (remainingDifference > 0){
             const channel = ['r', 'g', 'b'][Math.floor(Math.random() * 3)];
             const change = Math.min(remainingDifference, Math.floor(Math.random() * (remainingDifference + 1)));
-            diffColor[channel] = Math.min(255, Math.max(0, diffColor[channel] + (Math.random() < 0.5 ? -change : change)));
+            diffColor[channel] = Math.min(255, Math.max(0, diffColor[channel] + direction[channel] * change));
             remainingDifference -= change;
 
         }
@@ -113,8 +119,10 @@ function Game({level, score, setScore, endGame, paused}){
     };
 
     useEffect(() => {
-        generateNewGame();
-      }, [level, gridSize, score]);
+        if (timeLeft === 60){
+            generateNewGame();
+        }
+      }, [level, gridSize, score, timeLeft]);
 
     /*
     useEffect(() => {
@@ -173,7 +181,7 @@ function Game({level, score, setScore, endGame, paused}){
                 }            
     }, [score, level]);
     */
-    const handleSquareClick = (row, col, gridSize) => {
+    const handleSquareClick = (row, col) => {
         if (paused) return;
         if (row === differentSquare.row && col === differentSquare.col){
             setScore(score + 1);  
@@ -198,7 +206,7 @@ function Game({level, score, setScore, endGame, paused}){
                     Array.from({ length: gridSize }).map((_, col) => (
                         <div
                             key={`${row}-${col}`}
-                            onClick={() => handleSquareClick(row, col, gridSize)}
+                            onClick={() => handleSquareClick(row, col)}
                             style={{
                                 width: '50px', 
                                 height: '50px', 
