@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react'
+import React, { useState, useEffect } from 'react';
 import Game from './Game';
 import Result from './Result';
+import './App.css'; 
 
 function App() {
   const [level, setLevel] = useState('easy');
@@ -9,6 +10,16 @@ function App() {
   const [gameEnded, setGameEnded] = useState(false);
   const [paused, setPaused] = useState(false);
   const [username, setUsername] = useState('guest');
+  const [data, setData] = useState([]);
+  const [loginMessage, setLoginMessage] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/data')
+      .then((response) => response.json())
+      .then((data) => setData(data))
+      .catch((error) => console.error('Error fetching data:', error));
+  }, []);
+
   const startGame = () => {
     setScore(0);
     setGameStarted(true);
@@ -19,12 +30,26 @@ function App() {
   const endGame = () => {
     setGameStarted(false);
     setGameEnded(true);
+
+    fetch('http://localhost:5000/api/score', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username,
+        difficulty: level,
+        score: score,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log('Data saved to database:', data))
+      .catch((error) => console.error('Error saving data:', error));
   };
 
-  
-  
   const handleLogin = (name) => {
     setUsername(name);
+    setLoginMessage('Username saved successfully!');
   };
 
   const togglePause = () => {
@@ -38,55 +63,58 @@ function App() {
     setPaused(false);
   };
 
-  /*useEffect(() => {
-    fetch('http://localhost:5000/api')
-      .then(response => response.json())
-      .then(data => console.log(data));
-  }, []);*/
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => console.log(data))
-      .catch(error => console.error('Fetch error:', error));
-  }, []);
-
   return (
-    <div>
-      <h1>Find the Different color</h1>
+    <div className="App">
+      <h1>Find the Different Color</h1>
       {!gameStarted && !gameEnded && (
-        <div>
-          <select onChange={(e) => setLevel(e.target.value)}>
-            <option value="easy">easy</option>
-            <option value="medium">medium</option>
-            <option value="hard">hard</option>
+        <div className="game-controls">
+          <select onChange={(e) => setLevel(e.target.value)} className="level-selector">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
           </select>
-          <button onClick={startGame}>Start Game</button>
-          <button onClick={() => handleLogin(prompt('Please input username'))}>Login</button>
+          <button onClick={startGame} className="btn start-btn">Start Game</button>
+          <button onClick={() => handleLogin(prompt('Please input username'))} className="btn login-btn">Login</button>
+          {loginMessage && <p className="login-message">{loginMessage}</p>}
         </div>
       )}
+
       {gameStarted && (
-        <Game level={level} score={score} setScore={setScore} endGame={endGame} />
+        <Game level={level} score={score} setScore={setScore} endGame={endGame} paused = {paused}/>
       )}
+
       {gameStarted && (
-        <div>
-          <button onClick={togglePause} > {paused ? 'continue' : 'pause'}</button>
-          <button onClick={resetGame}>Restart</button>
+        <div className="game-action-buttons">
+          <button onClick={togglePause} className="btn pause-btn">{paused ? 'Continue' : 'Pause'}</button>
+          <button onClick={resetGame} className="btn restart-btn">Restart</button>
         </div>
       )}
+
       {gameEnded && (
-        <Result score={score} username = {username}/>
+        <Result score={score} username={username} />
       )}
+
+      <h2>Previous Game Data</h2>
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Difficulty</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td>{item.username}</td>
+              <td>{item.difficulty}</td>
+              <td>{item.score}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-  )
+  );
 }
 
-
-export default App
-
-
+export default App;
