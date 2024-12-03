@@ -2,51 +2,68 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const mysql = require('mysql2');
+const sqlite3 = require('sqlite3').verbose();
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// make sure to have the table Data inside of your database
-const connection = mysql.createConnection({
-  host: 'localhost',  
-  user: 'root', //change the user as needed       
-  password: 'password', //change the password as needed
-  database: 'myApp' // change the database name as needed  
-});
-
-connection.connect((err) => {
+const db = new sqlite3.Database('./database.db', (err) => {
   if (err) {
-    console.error('error connecting to database:', err);
+    console.error('Error connecting to SQLite database:', err);
     return;
   }
-  console.log('Connected to MySQL database!');
+  console.log('Connected to SQLite database!');
 });
+
+db.run(
+  `CREATE TABLE IF NOT EXISTS Data (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    difficulty TEXT,
+    score INTEGER
+  )`,
+  (err) => {
+    if (err) {
+      console.error('Error creating table:', err);
+    }
+  }
+);
 
 app.post('/api/score', (req, res) => {
   const { username, difficulty, score } = req.body;
 
   const query = 'INSERT INTO Data (username, difficulty, score) VALUES (?, ?, ?)';
 
-  connection.query(query, [username, difficulty, score], (err, results) => {
+  db.run(query, [username, difficulty, score], function (err) {
     if (err) {
       console.error('Error saving data:', err);
       return res.status(500).send('Error saving data');
     }
-    res.status(201).json({ message: 'Data saved successfully', data: { username, difficulty, score } });
+    res
+      .status(201)
+      .json({ message: 'Data saved successfully', data: { username, difficulty, score } });
   });
 });
 
-
 app.get('/api/data', (req, res) => {
-  const query = 'SELECT * FROM Data'; 
-  
-  connection.query(query, (err, results) => {
+  const { difficulty } = req.query; // Get the difficulty from the query parameters
+  let query = 'SELECT * FROM Data WHERE username != "Guest"';
+  const queryParams = [];
+
+  // If a difficulty level is provided, filter by difficulty
+  if (difficulty) {
+    query += ' AND difficulty = ?';
+    queryParams.push(difficulty);
+  }
+
+  query += ' ORDER BY score DESC';
+
+  db.all(query, queryParams, (err, rows) => {
     if (err) {
       console.error('Error fetching data:', err);
       return res.status(500).send('Error fetching data');
     }
-    res.json(results); 
+    res.json(rows); 
   });
 });
 

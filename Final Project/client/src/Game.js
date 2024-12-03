@@ -29,7 +29,7 @@ function Game({ level, score, setScore, endGame, paused }) {
   const generateNewGame = () => {
     let colorDifference;
     switch (level) {
-      case "medium":
+      case "Medium":
         if (score < 10) {
           setGridSize(3);
         } else if (score < 20 && score >= 10) {
@@ -41,9 +41,9 @@ function Game({ level, score, setScore, endGame, paused }) {
         } else {
           setGridSize(7);
         }
-        colorDifference = 130;
+        colorDifference = 100;
         break;
-      case "hard":
+      case "Hard":
         if (score < 10) {
           setGridSize(4);
         } else if (score < 20 && score >= 10) {
@@ -55,7 +55,7 @@ function Game({ level, score, setScore, endGame, paused }) {
         } else {
           setGridSize(8);
         }
-        colorDifference = 60;
+        colorDifference = 50;
         break;
       default:
         if (score < 10) {
@@ -130,9 +130,7 @@ function Game({ level, score, setScore, endGame, paused }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: `repeat(${gridSize}, 100px)`,
-            gap: "5px",
-            
+            gridTemplateColumns: `repeat(${gridSize}, 75px)`,
           }}
         >
           {Array.from({ length: gridSize }).map((_, row) =>
@@ -141,8 +139,8 @@ function Game({ level, score, setScore, endGame, paused }) {
                 key={`${row}-${col}`}
                 onClick={() => handleSquareClick(row, col)}
                 style={{
-                  width: "100px",
-                  height: "100px",
+                  width: "75px",
+                  height: "75px",
                   backgroundColor:
                     row === differentSquare.row && col === differentSquare.col
                       ? `rgb(${diffColor.r}, ${diffColor.g}, ${diffColor.b})`
@@ -162,9 +160,7 @@ const styles = {
   container: {
     display: "flex",
     justifyContent: "center",
-    alignItems: "flex-start",
-    height: "100vh",
-    textAlign: "center",
+    alignItems: "center",
   },
   game: {
     display: "flex",
