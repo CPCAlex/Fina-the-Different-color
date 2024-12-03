@@ -132,8 +132,7 @@ function Game({ level, score, setScore, endGame, paused }) {
             display: "grid",
             gridTemplateColumns: `repeat(${gridSize}, 100px)`,
             gap: "5px",
-            justifyItems: "center",
-            alignItems: "start"
+            
           }}
         >
           {Array.from({ length: gridSize }).map((_, row) =>

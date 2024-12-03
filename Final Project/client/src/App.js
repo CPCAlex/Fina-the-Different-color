@@ -84,7 +84,7 @@ function App() {
       )}
 
       {gameStarted && (
-        <div className="game-action-buttons">
+        <div>
           <button onClick={togglePause} className="btn pause-btn">{paused ? 'Continue' : 'Pause'}</button>
           <button onClick={resetGame} className="btn restart-btn">Restart</button>
         </div>

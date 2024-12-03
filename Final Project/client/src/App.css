@@ -28,7 +28,6 @@
   background-color: #008CBA;
   color: white;
 }
-
 .pause-btn {
   background-color: #f39c12;
   color: white;
@@ -40,13 +39,10 @@
 }
 
 .game-action-buttons {
-  display: flex;
   justify-content: center; 
   gap: 20px; 
-  margin-top: 10px; 
-  margin-bottom: 50px; 
+  
 }
-
 .data-table {
   width: 80%;
   margin: 20px auto;
