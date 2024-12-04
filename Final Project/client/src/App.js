@@ -13,9 +13,7 @@ function App() {
   const [data, setData] = useState([]);
   const [loginMessage, setLoginMessage] = useState('');
   const [leaderboardLevel, setLeaderboardLevel] = useState('Easy'); 
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(true);
+
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
